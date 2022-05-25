@@ -1,0 +1,10 @@
+.root {
+  position: relative; /* для popup */
+  min-height: 100vh;
+  min-width: 320px;
+  margin: 0 auto;
+  background: #000;
+  font-family: 'inter', 'Arial', 'Helvetica', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

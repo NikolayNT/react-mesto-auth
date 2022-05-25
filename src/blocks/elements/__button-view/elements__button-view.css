@@ -1,0 +1,14 @@
+.elements__button-view {
+  padding: 0;
+  border: none;
+  width: 22px;
+  height: 19px;
+  background-image: url("../../../images/heart.svg");
+  background-repeat: no-repeat;
+  background-color: transparent;
+  background-position: center;
+}
+
+.elements__button-view:hover {
+  opacity: .5;
+}

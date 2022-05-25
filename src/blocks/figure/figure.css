@@ -1,0 +1,19 @@
+.figure {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 0 auto;
+}
+
+/*без данных медиазапросов мобильная весрия не соответсвует макету*/
+@media all and (max-width: 645px) {
+  .figure {
+    height: 350px;
+  }
+}
+
+@media all and (max-width: 320px) {
+  .figure {
+   height: 299px;
+  }
+}
