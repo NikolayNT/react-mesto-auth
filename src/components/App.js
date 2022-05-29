@@ -1,4 +1,6 @@
 import React, {useState, useEffect} from "react";
+import { Route } from 'react-router-dom';
+
 import Header from "./Header";
 import Footer from "./Footer";
 import Main from "./Main";
@@ -9,8 +11,15 @@ import AddPlacePopup from "./AddPlacePopup";
 import PopupWithForm from "./PopupWithForm";
 import ImagePopup from "./ImagePopup";
 
+import Login from "./Login";
+import Register from "./Register";
+import InfoTooltip from "./InfoTooltip";
+
 import {api} from "../utils/Api";
 import {CurrentUserContext} from "../contexts/CurrentUserContext";
+
+import markImageOk from "../images/check-mark-ok.svg";
+import markImageCancel from "../images/check-mark-cancel.svg";
 
 function App() {
 
@@ -141,20 +150,32 @@ return (
 
         <ImagePopup isOpen={isImagePopupOpen} card={selectedCard} onClose={closeAllPopups}/>
 
-        <Header />
+        <Route exact path="/">
+          <Header />
+          <Main onEditProfile={handleEditProfileClick} 
+            onAddPlace={handleAddPlaceClick} 
+            onEditAvatar={handleEditAvatarClick} 
+            onCardClick={handleCardClick} 
+            onCardDeleteClick={handleDeleteCardClick} 
+            cards={cards} 
+            onCardLike={handleCardLike}
+            onCardDelete={handleCardDelete}
+          />
+        </Route>
 
-        <Main onEditProfile={handleEditProfileClick} 
-          onAddPlace={handleAddPlaceClick} 
-          onEditAvatar={handleEditAvatarClick} 
-          onCardClick={handleCardClick} 
-          onCardDeleteClick={handleDeleteCardClick} 
-          cards={cards} 
-          onCardLike={handleCardLike}
-          onCardDelete={handleCardDelete}
-        />
+        <Route path="/sign-up">
+          <Header text="Войти"/>
+          <Register header='Регистрация' button='Зарегистрироваться'/>
+          <InfoTooltip name='mark-ok' /*isOpen={true}*/ image={markImageOk} imageDescription='' text='Вы успешно зарегистрировались!'/>
+        </Route>
 
+        <Route path="/sign-in">
+          <Header text="Регистрация"/>
+          <Login header='Вход' button='Войти'/>
+          <InfoTooltip name='mark-cancel' /*isOpen={true}*/ image={markImageCancel} imageDescription='' text='Что-то пошло не так! Попробуйте ещё раз.'/>
+        </Route>
+        
         <Footer />
-
     </CurrentUserContext.Provider>
   </div>
 );

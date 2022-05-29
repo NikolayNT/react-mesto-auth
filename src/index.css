@@ -10,6 +10,16 @@
 /* header */
 @import url(./blocks/header/header.css);
 @import url(./blocks/header/__logo/header__logo.css);
+@import url(./blocks/header/__text/header__text.css);
+
+/* authorization */
+@import url(./blocks/authorization/authorization.css);
+@import url(./blocks/authorization/__button/login__button.css);
+@import url(./blocks/authorization/__button/_inactive/authorization__button_inactive.css);
+@import url(./blocks/authorization/__form/authorization__form.css);
+@import url(./blocks/authorization/__heading/authorization__heading.css);
+@import url(./blocks/authorization/__input/authorization__input.css);
+@import url(./blocks/authorization/__button-link/authorization__button-link.css);
 
 /* main */
 @import url(./blocks/content/content.css);
@@ -23,6 +33,10 @@
 @import url(./blocks/popup/_task/popup_task_img.css);
 @import url(./blocks/popup/_task/popup_task_confirm-deletion.css);
 @import url(./blocks/popup/_task/popup_task_update-avatar.css);
+@import url(./blocks/popup/_task/popup_task_mark-ok.css);
+@import url(./blocks/popup/_task/popup_task_mark-cancel.css);
+@import url(./blocks/popup/__mark-image/popup__mark-image.css);
+@import url(./blocks/popup/__conditional-text/popup__conditional-text.css);
 @import url(./blocks/popup/_opened/popup_opened.css);
 @import url(./blocks/popup/__form/popup__form.css);
 @import url(./blocks/popup/__heading/form__heading.css);

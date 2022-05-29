@@ -1,0 +1,15 @@
+.authorization__button-link {
+  text-decoration: none;
+  color: #FFF;
+  width: 100%;
+  font-style: normal;
+  font-weight: 400;
+  margin-top: 15px;
+  font-size: 14px;
+  line-height: 17px;
+  text-align: center;
+}
+
+.authorization__button-link:hover {
+  opacity: .6;
+}

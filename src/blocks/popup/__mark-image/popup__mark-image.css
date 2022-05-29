@@ -1,0 +1,10 @@
+.popup__mark-image {
+  margin: 60px 0 32px;
+  padding: 0;
+  width: 120px;
+  height: 120px;
+  box-sizing: border-box;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  background-position: center;
+}

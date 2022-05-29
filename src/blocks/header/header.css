@@ -1,6 +1,8 @@
 .header {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
   max-width: 880px;
   min-width: 320px;
   width: 68.75%;
