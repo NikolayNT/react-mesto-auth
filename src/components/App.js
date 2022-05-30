@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from "react";
-import { Route } from 'react-router-dom';
+import { Route, Redirect } from 'react-router-dom';
 
 import Header from "./Header";
 import Footer from "./Footer";
@@ -33,6 +33,8 @@ function App() {
 
   const [currentUser, setCurrentUser] = useState({});
 
+  const [loggedIn, setLoggedIn] = useState(false);
+  
   // забрали из майн
   const [cards, setCards] = useState([]);
   useEffect(() => {
@@ -151,16 +153,20 @@ return (
         <ImagePopup isOpen={isImagePopupOpen} card={selectedCard} onClose={closeAllPopups}/>
 
         <Route exact path="/">
-          <Header />
-          <Main onEditProfile={handleEditProfileClick} 
-            onAddPlace={handleAddPlaceClick} 
-            onEditAvatar={handleEditAvatarClick} 
-            onCardClick={handleCardClick} 
-            onCardDeleteClick={handleDeleteCardClick} 
-            cards={cards} 
-            onCardLike={handleCardLike}
-            onCardDelete={handleCardDelete}
-          />
+          {!loggedIn ? <Redirect to="/sign-in" /> : 
+          <>
+            <Header />
+            <Main onEditProfile={handleEditProfileClick} 
+              onAddPlace={handleAddPlaceClick} 
+              onEditAvatar={handleEditAvatarClick} 
+              onCardClick={handleCardClick} 
+              onCardDeleteClick={handleDeleteCardClick} 
+              cards={cards} 
+              onCardLike={handleCardLike}
+              onCardDelete={handleCardDelete}
+            />
+          </>
+          }
         </Route>
 
         <Route path="/sign-up">
