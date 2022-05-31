@@ -11,6 +11,9 @@
 @import url(./blocks/header/header.css);
 @import url(./blocks/header/__logo/header__logo.css);
 @import url(./blocks/header/__text/header__text.css);
+@import url(./blocks/header/__text-block/header__text-block.css);
+@import url(./blocks/header/__mail/header__mail.css);
+@import url(./blocks/header/__text-auth/header__text-auth.css);
 
 /* authorization */
 @import url(./blocks/authorization/authorization.css);

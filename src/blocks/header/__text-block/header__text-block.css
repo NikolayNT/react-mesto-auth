@@ -1,0 +1,16 @@
+.header__text-block {
+  display: flex;
+}
+
+.header__text-block:first-child {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 22px;
+  /* identical to box height, or 122% */
+
+  text-align: right;
+
+  color: #A9A9A9;
+}

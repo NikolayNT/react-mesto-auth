@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from "react";
-import { Route, Redirect } from 'react-router-dom';
+import { Route, Switch, Redirect, useHistory } from 'react-router-dom';
 
 import Header from "./Header";
 import Footer from "./Footer";
@@ -15,7 +15,12 @@ import Login from "./Login";
 import Register from "./Register";
 import InfoTooltip from "./InfoTooltip";
 
+import ProtectedRoute from "./ProtectedRoute"; // импортируем HOC
+
+// api
 import {api} from "../utils/Api";
+import {apiAuth} from "../utils/ApiAuth";
+
 import {CurrentUserContext} from "../contexts/CurrentUserContext";
 
 import markImageOk from "../images/check-mark-ok.svg";
@@ -34,8 +39,13 @@ function App() {
   const [currentUser, setCurrentUser] = useState({});
 
   const [loggedIn, setLoggedIn] = useState(false);
+  const history = useHistory();
+
+  const [mail, setMail] = useState('');
+
+  const [isMarkPopupOpen, setIsMarkPopupOpen] = useState(false);
+  const [isMarkPopupOkOpen, setIsMarkPopupOkOpen] = useState(false);
   
-  // забрали из майн
   const [cards, setCards] = useState([]);
   useEffect(() => {
     api.getInitialCards()
@@ -76,7 +86,20 @@ function App() {
         console.log(err);
       });
     }
-  ////
+
+    function handleRegisterOkClick () {
+      setIsMarkPopupOkOpen(true);
+    }
+
+    function handleRegisterCancelClick () {
+      setIsMarkPopupOpen(true);
+    }
+
+  function handleAuthorizationClick(dataUser){ // авторизация на сайте
+    setLoggedIn(true);
+    setMail(dataUser.data.email);
+    history.push('/');
+  };
 
   function handleEditAvatarClick(){
     setIsEditAvatarPopupOpen(true);
@@ -103,6 +126,8 @@ function App() {
     setIsAddPlacePopupOpen(false);
     setIsImagePopupOpen(false);
     setIsDeletePlacePopupOpen(false);
+    setIsMarkPopupOpen(false);
+    setIsMarkPopupOkOpen(false);
   }
 
   function handleUpdateUser(userData){
@@ -120,7 +145,6 @@ function App() {
     api.updateAvatar(userAvatar.avatar)
     .then((res) => {
       setCurrentUser(res);
-      console.log(res);
       closeAllPopups();
     })
     .catch(err => {
@@ -132,12 +156,34 @@ function App() {
     api.postCard(newCard)
     .then((res) => {
       setCards([res, ...cards]);
-      console.log(res);
       closeAllPopups();
     })
     .catch(err => {
       console.log(err);
     });
+  }
+
+  const tokenCheck = () => {
+    if (localStorage.getItem('token')) {
+      const jwt = localStorage.getItem('token');
+      apiAuth.identification(jwt).then((res) => {
+        if (res) {
+          setLoggedIn(true);
+          history.push('/');
+          setMail(res.data.email);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    }
+  };
+
+  tokenCheck(); // проверка, авторизован ли пользователь
+
+  function signOut(){
+    localStorage.removeItem('token');
+    history.push('/sign-in');
   }
 
 return (
@@ -152,35 +198,44 @@ return (
 
         <ImagePopup isOpen={isImagePopupOpen} card={selectedCard} onClose={closeAllPopups}/>
 
-        <Route exact path="/">
-          {!loggedIn ? <Redirect to="/sign-in" /> : 
-          <>
-            <Header />
-            <Main onEditProfile={handleEditProfileClick} 
-              onAddPlace={handleAddPlaceClick} 
-              onEditAvatar={handleEditAvatarClick} 
-              onCardClick={handleCardClick} 
-              onCardDeleteClick={handleDeleteCardClick} 
-              cards={cards} 
-              onCardLike={handleCardLike}
-              onCardDelete={handleCardDelete}
-            />
-          </>
-          }
-        </Route>
-
-        <Route path="/sign-up">
-          <Header text="Войти"/>
-          <Register header='Регистрация' button='Зарегистрироваться'/>
-          <InfoTooltip name='mark-ok' /*isOpen={true}*/ image={markImageOk} imageDescription='' text='Вы успешно зарегистрировались!'/>
-        </Route>
-
-        <Route path="/sign-in">
-          <Header text="Регистрация"/>
-          <Login header='Вход' button='Войти'/>
-          <InfoTooltip name='mark-cancel' /*isOpen={true}*/ image={markImageCancel} imageDescription='' text='Что-то пошло не так! Попробуйте ещё раз.'/>
-        </Route>
+        <Header mail={mail} onSignOut={signOut}/>
         
+        <Switch>
+        
+          <ProtectedRoute
+            onEditProfile={handleEditProfileClick} 
+            onAddPlace={handleAddPlaceClick} 
+            onEditAvatar={handleEditAvatarClick} 
+            onCardClick={handleCardClick} 
+            onCardDeleteClick={handleDeleteCardClick} 
+            cards={cards} 
+            onCardLike={handleCardLike}
+            onCardDelete={handleCardDelete}
+
+            component={Main}
+            loggedIn={loggedIn}
+            exact path="/"
+          />
+
+          <Route path="/sign-up">
+            <Register header='Регистрация' button='Зарегистрироваться' onRegisterOkClick={handleRegisterOkClick} onRegisterCancelClick={handleRegisterCancelClick}/>
+            <InfoTooltip name='mark-ok' isOpen={isMarkPopupOkOpen} onClose={closeAllPopups} image={markImageOk} imageDescription='Галочка' text='Вы успешно зарегистрировались!'/>
+            <InfoTooltip name='mark-cancel' isOpen={isMarkPopupOpen} onClose={closeAllPopups} image={markImageCancel} imageDescription='Крестик' text='Что-то пошло не так! Попробуйте ещё раз.'/>
+          </Route>
+
+          <Route path="/sign-in">
+            <Login header='Вход' button='Войти' onAuthorizationClick={handleAuthorizationClick}/>
+          </Route>
+
+          <Route>
+            {loggedIn ? (
+              <Redirect to="/" />
+            ) : (
+            <Redirect to="/sign-in" />
+            )}
+          </Route>
+        </Switch>
+
         <Footer />
     </CurrentUserContext.Provider>
   </div>

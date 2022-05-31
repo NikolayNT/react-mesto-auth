@@ -13,46 +13,35 @@ class ApiAuth {
     return Promise.reject(`Ошибка: ${res.status}`);
   }
 
-  registration(){
+  registration({email, password}){
     return fetch(`${this._baseUrl}/signup`, {headers: this._headers,
       method: 'POST',
       body: JSON.stringify({
-        password: "12345",
-        email: "koly201020@yandex.ru"})
+        password: password,
+        email: email})
     })
-    /*
-    email: "koly201020@yandex.ru"
-    _id: "6293b94f6390a4001468fbca"
-    */
     .then(this._checkResponse)
   }
 
-  authorization(){
+  authorization(auth){
     return fetch(`${this._baseUrl}/signin`, {headers: this._headers,
       method: 'POST',
       body: JSON.stringify({
-        password: "12345",
-        email: "koly201020@yandex.ru"})
+        password: auth.password,
+        email: auth.email})
     })
-    /*
-    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjkzYjk0ZjYzOTBhNDAwMTQ2OGZiY2EiLCJpYXQiOjE2NTM4NDk4NjJ9.rik_j3w1eJqwgy03ngAhG0ChQ4a07lOvbXVRPBzjiU8"
-    */
     .then(this._checkResponse)
   }
 
-  identification(){
+  identification(jwt){
     return fetch(`${this._baseUrl}/users/me`, {headers: 
       {
         "Content-Type": "application/json",
-        "Authorization" : `Bearer ${'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjkzYjk0ZjYzOTBhNDAwMTQ2OGZiY2EiLCJpYXQiOjE2NTM4NDk4NjJ9.rik_j3w1eJqwgy03ngAhG0ChQ4a07lOvbXVRPBzjiU8'}`
+        "Authorization" : `Bearer ${jwt}`
       }
       ,
       method: 'GET'
     })
-    /*
-    email: "koly201020@yandex.ru"
-    _id: "6293b94f6390a4001468fbca"
-    */
     .then(this._checkResponse)
   }
 }
@@ -60,7 +49,6 @@ class ApiAuth {
 const apiAuth = new ApiAuth({
   baseUrl: 'https://auth.nomoreparties.co',
   headers: {
-    /*authorization: '61c26732-c0b1-4455-b980-e65336351013',*/
     'Content-Type': 'application/json'
   }
 });
