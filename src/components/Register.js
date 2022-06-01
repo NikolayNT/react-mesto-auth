@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { apiAuth } from "../utils/ApiAuth";
 
 function Register(props) {
   const [email, setEmail] = useState("");
@@ -17,15 +16,9 @@ function Register(props) {
   function handleSubmit(e) {
     // Запрещаем браузеру переходить по адресу формы
     e.preventDefault();
-    apiAuth
-      .registration({ email, password })
-      .then(() => {
-        props.onRegisterOkClick();
-      })
-      .catch((err) => {
-        props.onRegisterCancelClick();
-        console.log(err);
-      });
+
+    // Передаём значения управляемых компонентов во внешний обработчик
+    props.onRegistrationSubmit({email, password});
   }
 
   return (

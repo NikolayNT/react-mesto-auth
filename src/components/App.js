@@ -47,8 +47,7 @@ function App() {
 
   const [cards, setCards] = useState([]);
   useEffect(() => {
-    api
-      .getInitialCards()
+    api.getInitialCards()
       .then((res) => {
         setCards(res);
       })
@@ -66,12 +65,10 @@ function App() {
   }, []);
 
   function handleCardLike(card) {
-    // проверить с пропсом
     // Снова проверяем, есть ли уже лайк на этой карточке
     const isLiked = card.likes.some((i) => i._id === currentUser._id);
     // Отправляем запрос в API и получаем обновлённые данные карточки
-    api
-      .changeLikeCardStatus(card._id, !isLiked)
+    api.changeLikeCardStatus(card._id, !isLiked)
       .then((newCard) => {
         setCards((state) =>
           state.map((c) => (c._id === card._id ? newCard : c))
@@ -83,8 +80,7 @@ function App() {
   }
 
   function handleCardDelete(card) {
-    api
-      .deleteCard(card._id)
+    api.deleteCard(card._id)
       .then(() => {
         setCards((state) =>
           state.filter((cardItem) => card._id != cardItem._id)
@@ -93,14 +89,6 @@ function App() {
       .catch((err) => {
         console.log(err);
       });
-  }
-
-  function handleRegisterOkClick() {
-    setIsMarkPopupOkOpen(true);
-  }
-
-  function handleRegisterCancelClick() {
-    setIsMarkPopupOpen(true);
   }
 
   function handleAuthorizationClick(dataUser) {
@@ -140,8 +128,7 @@ function App() {
   }
 
   function handleUpdateUser(userData) {
-    api
-      .putchtUser(userData)
+    api.putchtUser(userData)
       .then((res) => {
         setCurrentUser(res);
         closeAllPopups();
@@ -200,6 +187,18 @@ function App() {
     history.push("/sign-in");
   }
 
+  function handleRegistrationClick({email, password}) {
+
+    apiAuth.registration({email, password})
+      .then(() => {
+        setIsMarkPopupOkOpen(true);
+      })
+      .catch((err) => {
+        setIsMarkPopupOpen(true);
+        console.log(err);
+      });
+  }
+
   return (
     <div className="root">
       <CurrentUserContext.Provider value={currentUser}>
@@ -255,8 +254,7 @@ function App() {
             <Register
               header="Регистрация"
               button="Зарегистрироваться"
-              onRegisterOkClick={handleRegisterOkClick}
-              onRegisterCancelClick={handleRegisterCancelClick}
+              onRegistrationSubmit={handleRegistrationClick}
             />
             <InfoTooltip
               name="mark-ok"

@@ -9,12 +9,12 @@ function Header(props) {
         <Route exact path="/">
           <div className="header__text-block">
             <p className="header__mail">{props.mail}</p>
-            <p
-              /*to="/sign-in"*/ className="header__text"
+            <a
+              className="header__text"
               onClick={props.onSignOut}
             >
               Выйти
-            </p>
+            </a>
           </div>
         </Route>
         <Route path="/sign-in">
