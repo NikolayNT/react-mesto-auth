@@ -1,4 +1,4 @@
-import {useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Route, Switch, Redirect, useHistory } from "react-router-dom";
 
 import Header from "./Header";
@@ -30,45 +30,70 @@ function App() {
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
-
   const [isDeletePlacePopupOpen, setIsDeletePlacePopupOpen] = useState(false);
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
+  const [isStatusPopupOpen, setIsStatusPopupOpen] = useState({isOpen: false, status: false});
+
   const [selectedCard, setSelectedCard] = useState({});
 
   const [currentUser, setCurrentUser] = useState({});
 
   const [loggedIn, setLoggedIn] = useState(false);
-  const history = useHistory();
-
   const [mail, setMail] = useState("");
 
-  const [isMarkPopupOpen, setIsMarkPopupOpen] = useState(false);
-  const [isMarkPopupOkOpen, setIsMarkPopupOkOpen] = useState(false);
-
+  const history = useHistory();
+ 
   const [cards, setCards] = useState([]);
+
   useEffect(() => {
-    api.getInitialCards()
-      .then((res) => {
-        setCards(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    api
-      .getUser()
-      .then((res) => {
-        setCurrentUser(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
+    if (loggedIn) {
+      // проверяем авторизован ли пользователь для загрузки карточек
+      api
+        .getInitialCards()
+        .then((res) => {
+          setCards(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      api
+        .getUser()
+        .then((res) => {
+          setCurrentUser(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+
+    tokenCheck(); // проверка, авторизован ли пользователь через поиск токена в браузере
+  }, [loggedIn]);
+
+  const tokenCheck = () => {
+    if (localStorage.getItem("token")) {
+      const jwt = localStorage.getItem("token");
+
+      apiAuth
+        .identification(jwt)
+        .then((res) => {
+          if (res) {
+            setLoggedIn(true);
+            history.push("/");
+            setMail(res.data.email);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
 
   function handleCardLike(card) {
     // Снова проверяем, есть ли уже лайк на этой карточке
     const isLiked = card.likes.some((i) => i._id === currentUser._id);
     // Отправляем запрос в API и получаем обновлённые данные карточки
-    api.changeLikeCardStatus(card._id, !isLiked)
+    api
+      .changeLikeCardStatus(card._id, !isLiked)
       .then((newCard) => {
         setCards((state) =>
           state.map((c) => (c._id === card._id ? newCard : c))
@@ -80,7 +105,8 @@ function App() {
   }
 
   function handleCardDelete(card) {
-    api.deleteCard(card._id)
+    api
+      .deleteCard(card._id)
       .then(() => {
         setCards((state) =>
           state.filter((cardItem) => card._id != cardItem._id)
@@ -123,12 +149,13 @@ function App() {
     setIsAddPlacePopupOpen(false);
     setIsImagePopupOpen(false);
     setIsDeletePlacePopupOpen(false);
-    setIsMarkPopupOpen(false);
-    setIsMarkPopupOkOpen(false);
+
+    setIsStatusPopupOpen({isOpen: false, status: false});
   }
 
   function handleUpdateUser(userData) {
-    api.putchtUser(userData)
+    api
+      .putchtUser(userData)
       .then((res) => {
         setCurrentUser(res);
         closeAllPopups();
@@ -162,46 +189,24 @@ function App() {
       });
   }
 
-  const tokenCheck = () => {
-    if (localStorage.getItem("token")) {
-      const jwt = localStorage.getItem("token");
-
-      apiAuth.identification(jwt)
-        .then((res) => {
-          if (res) {
-            setLoggedIn(true);
-            history.push("/");
-            setMail(res.data.email);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-  };
-
-  tokenCheck(); // проверка, авторизован ли пользователь
-
   function signOut() {
     localStorage.removeItem("token");
     history.push("/sign-in");
   }
 
-  function handleRegistrationClick({email, password}) {
-
-    apiAuth.registration({email, password})
+  function handleRegistrationClick({ email, password }) {
+    apiAuth.registration({ email, password })
       .then(() => {
-        setIsMarkPopupOkOpen(true);
+        setIsStatusPopupOpen({isOpen: true, status: true});
       })
       .catch((err) => {
-        setIsMarkPopupOpen(true);
+        setIsStatusPopupOpen({isOpen: true, status: false});
         console.log(err);
       });
   }
 
-  function handleAuthorizationClick({email, password}) {
-
-    apiAuth.authorization({email, password})
+  function handleAuthorizationClick({ email, password }) {
+    apiAuth.authorization({ email, password })
       .then((res) => {
         // после успешной авторизации идентифицируем пользователя
         const jwt = res.token;
@@ -218,7 +223,7 @@ function App() {
           });
       })
       .catch((err) => {
-        setIsMarkPopupOpen(true);
+        setIsStatusPopupOpen({isOpen: true, status: false});
         console.log(err);
       });
   }
@@ -280,21 +285,14 @@ function App() {
               button="Зарегистрироваться"
               onRegistrationSubmit={handleRegistrationClick}
             />
+
             <InfoTooltip
-              name="mark-ok"
-              isOpen={isMarkPopupOkOpen}
               onClose={closeAllPopups}
-              image={markImageOk}
-              imageDescription="Галочка"
-              text="Вы успешно зарегистрировались!"
-            />
-            <InfoTooltip
-              name="mark-cancel"
-              isOpen={isMarkPopupOpen}
-              onClose={closeAllPopups}
-              image={markImageCancel}
-              imageDescription="Крестик"
-              text="Что-то пошло не так! Попробуйте ещё раз."
+              isOpen={isStatusPopupOpen.isOpen}
+              name={isStatusPopupOpen.status ? "mark-ok" : "mark-cancel"}
+              image={isStatusPopupOpen.status ? markImageOk : markImageCancel}
+              imageDescription={isStatusPopupOpen.status ? "Галочка" : "Крестик"}
+              text={isStatusPopupOpen.status ? "Вы успешно зарегистрировались!" : "Что-то пошло не так! Попробуйте ещё раз."}
             />
           </Route>
 
@@ -305,12 +303,12 @@ function App() {
               onAuthorizationClick={handleAuthorizationClick}
             />
             <InfoTooltip
-              name="mark-cancel"
-              isOpen={isMarkPopupOpen}
               onClose={closeAllPopups}
-              image={markImageCancel}
-              imageDescription="Крестик"
-              text="Что-то пошло не так! Попробуйте ещё раз."
+              isOpen={isStatusPopupOpen.isOpen}
+              name={isStatusPopupOpen.status ? "mark-ok" : "mark-cancel"}
+              image={isStatusPopupOpen.status ? markImageOk : markImageCancel}
+              imageDescription={isStatusPopupOpen.status ? "Галочка" : "Крестик"}
+              text={isStatusPopupOpen.status ? "Вы успешно зарегистрировались!" : "Что-то пошло не так! Попробуйте ещё раз."}
             />
           </Route>
 
