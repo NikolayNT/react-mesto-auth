@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import {useState, useEffect } from "react";
 import { Route, Switch, Redirect, useHistory } from "react-router-dom";
 
 import Header from "./Header";
@@ -165,8 +165,8 @@ function App() {
   const tokenCheck = () => {
     if (localStorage.getItem("token")) {
       const jwt = localStorage.getItem("token");
-      apiAuth
-        .identification(jwt)
+
+      apiAuth.identification(jwt)
         .then((res) => {
           if (res) {
             setLoggedIn(true);
@@ -192,6 +192,30 @@ function App() {
     apiAuth.registration({email, password})
       .then(() => {
         setIsMarkPopupOkOpen(true);
+      })
+      .catch((err) => {
+        setIsMarkPopupOpen(true);
+        console.log(err);
+      });
+  }
+
+  function handleAuthorizationClick({email, password}) {
+
+    apiAuth.authorization({email, password})
+      .then((res) => {
+        // после успешной авторизации идентифицируем пользователя
+        const jwt = res.token;
+        localStorage.setItem("token", jwt);
+        apiAuth.identification(jwt)
+          .then((res) => {
+            // открываем сессию
+            setLoggedIn(true);
+            setMail(res.data.email);
+            history.push("/");
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       })
       .catch((err) => {
         setIsMarkPopupOpen(true);
@@ -279,6 +303,14 @@ function App() {
               header="Вход"
               button="Войти"
               onAuthorizationClick={handleAuthorizationClick}
+            />
+            <InfoTooltip
+              name="mark-cancel"
+              isOpen={isMarkPopupOpen}
+              onClose={closeAllPopups}
+              image={markImageCancel}
+              imageDescription="Крестик"
+              text="Что-то пошло не так! Попробуйте ещё раз."
             />
           </Route>
 

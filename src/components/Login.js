@@ -1,6 +1,4 @@
-import React, { useState } from "react";
-
-import { apiAuth } from "../utils/ApiAuth";
+import { useState } from "react";
 
 function Login(props) {
   const [email, setEmail] = useState("");
@@ -15,27 +13,9 @@ function Login(props) {
   }
 
   function handleSubmit(e) {
-    // Запрещаем браузеру переходить по адресу формы
     e.preventDefault();
-    const auth = { password, email };
-    apiAuth
-      .authorization(auth)
-      .then((res) => {
-        // после успешной авторизации идентифицируем пользователя
-        const jwt = res.token;
-        localStorage.setItem("token", jwt);
-        apiAuth
-          .identification(jwt)
-          .then((res) => {
-            props.onAuthorizationClick(res);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+
+    props.onAuthorizationClick({email, password});
   }
 
   return (
