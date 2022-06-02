@@ -32,7 +32,11 @@ function App() {
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isDeletePlacePopupOpen, setIsDeletePlacePopupOpen] = useState(false);
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
-  const [isStatusPopupOpen, setIsStatusPopupOpen] = useState({isOpen: false, status: false});
+
+  // чтобы при закрытии не менялось изображение (когда попап медленно закрывается,
+  // а эффект уже сработал)
+  const [isStatusPopupOpen, setIsStatusPopupOpen] = useState(false);
+  const [isStatusMarkPopup, setIsStatusMarkPopup] = useState(false);
 
   const [selectedCard, setSelectedCard] = useState({});
 
@@ -150,12 +154,11 @@ function App() {
     setIsImagePopupOpen(false);
     setIsDeletePlacePopupOpen(false);
 
-    setIsStatusPopupOpen({isOpen: false, status: false});
+    setIsStatusPopupOpen(false);
   }
 
   function handleUpdateUser(userData) {
-    api
-      .putchtUser(userData)
+    api.putchtUser(userData)
       .then((res) => {
         setCurrentUser(res);
         closeAllPopups();
@@ -166,8 +169,7 @@ function App() {
   }
 
   function handleUpdateAvatar(userAvatar) {
-    api
-      .updateAvatar(userAvatar.avatar)
+    api.updateAvatar(userAvatar.avatar)
       .then((res) => {
         setCurrentUser(res);
         closeAllPopups();
@@ -178,8 +180,7 @@ function App() {
   }
 
   function handleAddPlace(newCard) {
-    api
-      .postCard(newCard)
+    api.postCard(newCard)
       .then((res) => {
         setCards([res, ...cards]);
         closeAllPopups();
@@ -197,10 +198,12 @@ function App() {
   function handleRegistrationClick({ email, password }) {
     apiAuth.registration({ email, password })
       .then(() => {
-        setIsStatusPopupOpen({isOpen: true, status: true});
+        setIsStatusPopupOpen(true);
+        setIsStatusMarkPopup(true);
       })
       .catch((err) => {
-        setIsStatusPopupOpen({isOpen: true, status: false});
+        setIsStatusPopupOpen(true);
+        setIsStatusMarkPopup(false);
         console.log(err);
       });
   }
@@ -223,7 +226,8 @@ function App() {
           });
       })
       .catch((err) => {
-        setIsStatusPopupOpen({isOpen: true, status: false});
+        setIsStatusPopupOpen(true);
+        setIsStatusMarkPopup(false);
         console.log(err);
       });
   }
@@ -261,6 +265,15 @@ function App() {
           onClose={closeAllPopups}
         />
 
+        <InfoTooltip
+          onClose={closeAllPopups}
+          isOpen={isStatusPopupOpen}
+          name={isStatusMarkPopup ? "mark-ok" : "mark-cancel"}
+          image={isStatusMarkPopup ? markImageOk : markImageCancel}
+          imageDescription={isStatusMarkPopup ? "Галочка" : "Крестик"}
+          text={isStatusMarkPopup ? "Вы успешно зарегистрировались!" : "Что-то пошло не так! Попробуйте ещё раз."}
+        />
+
         <Header mail={mail} onSignOut={signOut} />
 
         <Switch>
@@ -285,15 +298,6 @@ function App() {
               button="Зарегистрироваться"
               onRegistrationSubmit={handleRegistrationClick}
             />
-
-            <InfoTooltip
-              onClose={closeAllPopups}
-              isOpen={isStatusPopupOpen.isOpen}
-              name={isStatusPopupOpen.status ? "mark-ok" : "mark-cancel"}
-              image={isStatusPopupOpen.status ? markImageOk : markImageCancel}
-              imageDescription={isStatusPopupOpen.status ? "Галочка" : "Крестик"}
-              text={isStatusPopupOpen.status ? "Вы успешно зарегистрировались!" : "Что-то пошло не так! Попробуйте ещё раз."}
-            />
           </Route>
 
           <Route path="/sign-in">
@@ -301,14 +305,6 @@ function App() {
               header="Вход"
               button="Войти"
               onAuthorizationClick={handleAuthorizationClick}
-            />
-            <InfoTooltip
-              onClose={closeAllPopups}
-              isOpen={isStatusPopupOpen.isOpen}
-              name={isStatusPopupOpen.status ? "mark-ok" : "mark-cancel"}
-              image={isStatusPopupOpen.status ? markImageOk : markImageCancel}
-              imageDescription={isStatusPopupOpen.status ? "Галочка" : "Крестик"}
-              text={isStatusPopupOpen.status ? "Вы успешно зарегистрировались!" : "Что-то пошло не так! Попробуйте ещё раз."}
             />
           </Route>
 
